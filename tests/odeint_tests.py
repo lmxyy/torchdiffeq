@@ -1,8 +1,9 @@
 import unittest
-import torch
-import torchdiffeq
 
 import problems
+import torch
+
+import torchdiffeq
 
 error_tol = 1e-4
 

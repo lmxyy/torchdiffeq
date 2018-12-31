@@ -1,10 +1,12 @@
 import collections
+
 import torch
-from .solvers import AdaptiveStepsizeODESolver
+
 from .misc import (
     _handle_unused_kwargs, _select_initial_step, _convert_to_tensor, _scaled_dot_product, _is_iterable,
     _optimal_step_size, _compute_error_ratio
 )
+from .solvers import AdaptiveStepsizeODESolver
 
 _MIN_ORDER = 1
 _MAX_ORDER = 12
@@ -61,8 +63,8 @@ def compute_implicit_phi(explicit_phi, f_n, k):
 class VariableCoefficientAdamsBashforth(AdaptiveStepsizeODESolver):
 
     def __init__(
-        self, func, y0, rtol, atol, implicit=True, max_order=_MAX_ORDER, safety=0.9, ifactor=10.0, dfactor=0.2,
-        **unused_kwargs
+            self, func, y0, rtol, atol, implicit=True, max_order=_MAX_ORDER, safety=0.9, ifactor=10.0, dfactor=0.2,
+            **unused_kwargs
     ):
         _handle_unused_kwargs(self, unused_kwargs)
         del unused_kwargs

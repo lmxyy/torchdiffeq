@@ -1,4 +1,5 @@
 import warnings
+
 import torch
 
 
@@ -71,9 +72,9 @@ def _is_iterable(inputs):
 def _norm(x):
     """Compute RMS norm."""
     if torch.is_tensor(x):
-        return x.norm() / (x.numel()**0.5)
+        return x.norm() / (x.numel() ** 0.5)
     else:
-        return torch.sqrt(sum(x_.norm()**2 for x_ in x) / sum(x_.numel() for x_ in x))
+        return torch.sqrt(sum(x_.norm() ** 2 for x_ in x) / sum(x_.numel() for x_ in x))
 
 
 def _handle_unused_kwargs(solver, unused_kwargs):
@@ -138,7 +139,7 @@ def _select_initial_step(fun, t0, y0, order, rtol, atol, f0=None):
     if max(d1).item() <= 1e-15 and max(d2).item() <= 1e-15:
         h1 = torch.max(torch.tensor(1e-6).to(h0), h0 * 1e-3)
     else:
-        h1 = (0.01 / max(d1 + d2))**(1. / float(order + 1))
+        h1 = (0.01 / max(d1 + d2)) ** (1. / float(order + 1))
 
     return torch.min(100 * h0, h1)
 
@@ -166,7 +167,7 @@ def _optimal_step_size(last_step, mean_error_ratio, safety=0.9, ifactor=10.0, df
         dfactor = _convert_to_tensor(1, dtype=torch.float64, device=mean_error_ratio.device)
     error_ratio = torch.sqrt(mean_error_ratio).type_as(last_step)
     exponent = torch.tensor(1 / order).type_as(last_step)
-    factor = torch.max(1 / ifactor, torch.min(error_ratio**exponent / safety, 1 / dfactor))
+    factor = torch.max(1 / ifactor, torch.min(error_ratio ** exponent / safety, 1 / dfactor))
     return last_step / factor
 
 

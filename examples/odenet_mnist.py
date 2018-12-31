@@ -1,13 +1,14 @@
-import os
 import argparse
 import logging
+import os
 import time
+
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--network', type=str, choices=['resnet', 'odenet'], default='odenet')

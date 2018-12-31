@@ -10,4 +10,4 @@ setuptools.setup(
     packages=['torchdiffeq'],
     install_requires=['torch>=0.4.1'],
     classifiers=(
-        "Programming Language :: Python :: 3"),)
+        "Programming Language :: Python :: 3"), )

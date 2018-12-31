@@ -1,8 +1,9 @@
 import unittest
-import torch
-import torchdiffeq
 
+import torch
 from problems import construct_problem
+
+import torchdiffeq
 
 eps = 1e-12
 

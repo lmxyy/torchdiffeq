@@ -1,7 +1,8 @@
 import torch
+
 from .misc import _scaled_dot_product, _convert_to_tensor, _is_finite, _select_initial_step, _handle_unused_kwargs
-from .solvers import AdaptiveStepsizeODESolver
 from .rk_common import _RungeKuttaState, _ButcherTableau, _runge_kutta_step
+from .solvers import AdaptiveStepsizeODESolver
 
 # Parameters from Tsitouras (2011).
 _TSITOURAS_TABLEAU = _ButcherTableau(
@@ -29,13 +30,13 @@ _TSITOURAS_TABLEAU = _ButcherTableau(
 
 def _interp_coeff_tsit5(t0, dt, eval_t):
     t = float((eval_t - t0) / dt)
-    b1 = -1.0530884977290216 * t * (t - 1.3299890189751412) * (t**2 - 1.4364028541716351 * t + 0.7139816917074209)
-    b2 = 0.1017 * t**2 * (t**2 - 2.1966568338249754 * t + 1.2949852507374631)
-    b3 = 2.490627285651252793 * t**2 * (t**2 - 2.38535645472061657 * t + 1.57803468208092486)
-    b4 = -16.54810288924490272 * (t - 1.21712927295533244) * (t - 0.61620406037800089) * t**2
-    b5 = 47.37952196281928122 * (t - 1.203071208372362603) * (t - 0.658047292653547382) * t**2
-    b6 = -34.87065786149660974 * (t - 1.2) * (t - 0.666666666666666667) * t**2
-    b7 = 2.5 * (t - 1) * (t - 0.6) * t**2
+    b1 = -1.0530884977290216 * t * (t - 1.3299890189751412) * (t ** 2 - 1.4364028541716351 * t + 0.7139816917074209)
+    b2 = 0.1017 * t ** 2 * (t ** 2 - 2.1966568338249754 * t + 1.2949852507374631)
+    b3 = 2.490627285651252793 * t ** 2 * (t ** 2 - 2.38535645472061657 * t + 1.57803468208092486)
+    b4 = -16.54810288924490272 * (t - 1.21712927295533244) * (t - 0.61620406037800089) * t ** 2
+    b5 = 47.37952196281928122 * (t - 1.203071208372362603) * (t - 0.658047292653547382) * t ** 2
+    b6 = -34.87065786149660974 * (t - 1.2) * (t - 0.666666666666666667) * t ** 2
+    b7 = 2.5 * (t - 1) * (t - 0.6) * t ** 2
     return [b1, b2, b3, b4, b5, b6, b7]
 
 
@@ -55,7 +56,7 @@ def _optimal_step_size(last_step, mean_error_ratio, safety=0.9, ifactor=10.0, df
         dfactor = _convert_to_tensor(1, dtype=torch.float64, device=mean_error_ratio.device)
     error_ratio = torch.sqrt(mean_error_ratio).type_as(last_step)
     exponent = torch.tensor(1 / order).type_as(last_step)
-    factor = torch.max(1 / ifactor, torch.min(error_ratio**exponent / safety, 1 / dfactor))
+    factor = torch.max(1 / ifactor, torch.min(error_ratio ** exponent / safety, 1 / dfactor))
     return last_step / factor
 
 
@@ -66,8 +67,9 @@ def _abs_square(x):
 class Tsit5Solver(AdaptiveStepsizeODESolver):
 
     def __init__(
-        self, func, y0, rtol, atol, first_step=None, safety=0.9, ifactor=10.0, dfactor=0.2, max_num_steps=2**31 - 1,
-        **unused_kwargs
+            self, func, y0, rtol, atol, first_step=None, safety=0.9, ifactor=10.0, dfactor=0.2,
+            max_num_steps=2 ** 31 - 1,
+            **unused_kwargs
     ):
         _handle_unused_kwargs(self, unused_kwargs)
         del unused_kwargs
@@ -122,8 +124,8 @@ class Tsit5Solver(AdaptiveStepsizeODESolver):
             torch.mul(tensor_error_ratio_, tensor_error_ratio_) for tensor_error_ratio_ in tensor_error_ratio
         )
         mean_error_ratio = (
-            sum(torch.sum(sq_error_ratio_) for sq_error_ratio_ in sq_error_ratio) /
-            sum(sq_error_ratio_.numel() for sq_error_ratio_ in sq_error_ratio)
+                sum(torch.sum(sq_error_ratio_) for sq_error_ratio_ in sq_error_ratio) /
+                sum(sq_error_ratio_.numel() for sq_error_ratio_ in sq_error_ratio)
         )
         accept_step = mean_error_ratio <= 1
 

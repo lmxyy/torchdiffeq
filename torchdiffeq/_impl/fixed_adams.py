@@ -1,8 +1,9 @@
-import sys
 import collections
-from .solvers import FixedGridODESolver
-from .misc import _scaled_dot_product, _has_converged
+import sys
+
 from . import rk_common
+from .misc import _scaled_dot_product, _has_converged
+from .solvers import FixedGridODESolver
 
 _BASHFORTH_COEFFICIENTS = [
     [],  # order 0
@@ -151,7 +152,7 @@ _MAX_ITERS = 4
 class AdamsBashforthMoulton(FixedGridODESolver):
 
     def __init__(
-        self, func, y0, rtol=1e-3, atol=1e-4, implicit=True, max_iters=_MAX_ITERS, max_order=_MAX_ORDER, **kwargs
+            self, func, y0, rtol=1e-3, atol=1e-4, implicit=True, max_iters=_MAX_ITERS, max_order=_MAX_ORDER, **kwargs
     ):
         super(AdamsBashforthMoulton, self).__init__(func, y0, **kwargs)
 

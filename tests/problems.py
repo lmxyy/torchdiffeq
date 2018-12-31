@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 import scipy.linalg
 import torch
@@ -12,7 +13,7 @@ class ConstantODE(torch.nn.Module):
         self.b = torch.nn.Parameter(torch.tensor(3.0).to(device))
 
     def forward(self, t, y):
-        return self.a + (y - (self.a * t + self.b))**5
+        return self.a + (y - (self.a * t + self.b)) ** 5
 
     def y_exact(self, t):
         return self.a * t + self.b
@@ -24,12 +25,12 @@ class SineODE(torch.nn.Module):
         super(SineODE, self).__init__()
 
     def forward(self, t, y):
-        return 2 * y / t + t**4 * torch.sin(2 * t) - t**2 + 4 * t**3
+        return 2 * y / t + t ** 4 * torch.sin(2 * t) - t ** 2 + 4 * t ** 3
 
     def y_exact(self, t):
-        return -0.5 * t**4 * torch.cos(2 * t) + 0.5 * t**3 * torch.sin(2 * t) + 0.25 * t**2 * torch.cos(
+        return -0.5 * t ** 4 * torch.cos(2 * t) + 0.5 * t ** 3 * torch.sin(2 * t) + 0.25 * t ** 2 * torch.cos(
             2 * t
-        ) - t**3 + 2 * t**4 + (math.pi - 0.25) * t**2
+        ) - t ** 3 + 2 * t ** 4 + (math.pi - 0.25) * t ** 2
 
 
 class LinearODE(torch.nn.Module):
@@ -58,7 +59,6 @@ PROBLEMS = {'constant': ConstantODE, 'linear': LinearODE, 'sine': SineODE}
 
 
 def construct_problem(device, npts=10, ode='constant', reverse=False):
-
     f = PROBLEMS[ode](device)
 
     t_points = torch.linspace(1, 8, npts).to(device).requires_grad_(True)
@@ -82,5 +82,6 @@ if __name__ == '__main__':
     sol = f.y_exact(t_points)
 
     import matplotlib.pyplot as plt
+
     plt.plot(t_points.detach().cpu().numpy(), sol.detach().cpu().numpy())
     plt.show()

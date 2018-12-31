@@ -1,8 +1,8 @@
-import os
 import argparse
+import os
 import time
-import numpy as np
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -34,7 +34,7 @@ true_A = torch.tensor([[-0.1, 2.0], [-2.0, -0.1]])
 class Lambda(nn.Module):
 
     def forward(self, t, y):
-        return torch.mm(y**3, true_A)
+        return torch.mm(y ** 3, true_A)
 
 
 with torch.no_grad():
@@ -57,6 +57,7 @@ def makedirs(dirname):
 if args.viz:
     makedirs('png')
     import matplotlib.pyplot as plt
+
     fig = plt.figure(figsize=(12, 4), facecolor='white')
     ax_traj = fig.add_subplot(131, frameon=False)
     ax_phase = fig.add_subplot(132, frameon=False)
@@ -65,9 +66,7 @@ if args.viz:
 
 
 def visualize(true_y, pred_y, odefunc, itr):
-
     if args.viz:
-
         ax_traj.cla()
         ax_traj.set_title('Trajectories')
         ax_traj.set_xlabel('t')
@@ -94,7 +93,7 @@ def visualize(true_y, pred_y, odefunc, itr):
 
         y, x = np.mgrid[-2:2:21j, -2:2:21j]
         dydt = odefunc(0, torch.Tensor(np.stack([x, y], -1).reshape(21 * 21, 2))).cpu().detach().numpy()
-        mag = np.sqrt(dydt[:, 0]**2 + dydt[:, 1]**2).reshape(-1, 1)
+        mag = np.sqrt(dydt[:, 0] ** 2 + dydt[:, 1] ** 2).reshape(-1, 1)
         dydt = (dydt / mag)
         dydt = dydt.reshape(21, 21, 2)
 
@@ -125,7 +124,7 @@ class ODEFunc(nn.Module):
                 nn.init.constant_(m.bias, val=0)
 
     def forward(self, t, y):
-        return self.net(y**3)
+        return self.net(y ** 3)
 
 
 class RunningAverageMeter(object):

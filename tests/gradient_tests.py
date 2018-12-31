@@ -1,8 +1,9 @@
 import unittest
-import torch
-import torchdiffeq
 
+import torch
 from problems import construct_problem
+
+import torchdiffeq
 
 eps = 1e-12
 
@@ -17,14 +18,12 @@ def max_abs(tensor):
 class TestGradient(unittest.TestCase):
 
     def test_midpoint(self):
-
         f, y0, t_points, _ = construct_problem(TEST_DEVICE)
 
         func = lambda y0, t_points: torchdiffeq.odeint(f, y0, t_points, method='midpoint')
         self.assertTrue(torch.autograd.gradcheck(func, (y0, t_points)))
 
     def test_rk4(self):
-
         f, y0, t_points, _ = construct_problem(TEST_DEVICE)
 
         func = lambda y0, t_points: torchdiffeq.odeint(f, y0, t_points, method='rk4')
@@ -79,7 +78,6 @@ class TestGradient(unittest.TestCase):
 class TestCompareAdjointGradient(unittest.TestCase):
 
     def problem(self):
-
         class Odefunc(torch.nn.Module):
 
             def __init__(self):
@@ -88,7 +86,7 @@ class TestCompareAdjointGradient(unittest.TestCase):
                 self.unused_module = torch.nn.Linear(2, 5)
 
             def forward(self, t, y):
-                return torch.mm(y**3, self.A)
+                return torch.mm(y ** 3, self.A)
 
         y0 = torch.tensor([[2., 0.]]).to(TEST_DEVICE).requires_grad_(True)
         t_points = torch.linspace(0., 25., 10).to(TEST_DEVICE).requires_grad_(True)
