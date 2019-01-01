@@ -102,7 +102,7 @@ if __name__ == '__main__':
     optimizer = optim.RMSprop(model.parameters(), lr=1e-3)
     loss_func = nn.CrossEntropyLoss().to(device)
 
-    for i in range(1000):
+    for i in range(300):
         x, y = get_data()
         target_y = y.data.numpy()
         x, y = x.to(device), y.to(device)
