@@ -2,9 +2,11 @@ from .adams import VariableCoefficientAdamsBashforth
 from .dopri5 import Dopri5Solver
 from .fixed_adams import AdamsBashforth, AdamsBashforthMoulton
 from .fixed_grid import Euler, Midpoint, RK4
+from .mh import MilneHammingSolver
 from .misc import _check_inputs
 from .tsit5 import Tsit5Solver
 
+# TODO: add mh algorithm
 SOLVERS = {
     'explicit_adams': AdamsBashforth,
     'fixed_adams': AdamsBashforthMoulton,
@@ -14,6 +16,7 @@ SOLVERS = {
     'euler': Euler,
     'midpoint': Midpoint,
     'rk4': RK4,
+    'mh': MilneHammingSolver
 }
 
 
