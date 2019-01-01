@@ -19,6 +19,17 @@ parser.add_argument('--gpu', type=int, default=0)
 parser.add_argument('--adjoint', action='store_true')
 args = parser.parse_args()
 
+
+def adjust_learning_rate(optimizer):
+    """Sets the learning rate"""
+    flag = False
+    for param_group in optimizer.param_groups:
+        flag = True
+        param_group['lr'] *= 0.98
+        print('Current learning rate: %f' % param_group['lr'])
+    return optimizer
+
+
 if args.adjoint:
     from torchdiffeq import odeint_adjoint as odeint
 else:
@@ -43,9 +54,17 @@ with torch.no_grad():
 
 def get_batch():
     s = torch.from_numpy(np.random.choice(np.arange(args.data_size - args.batch_time), args.batch_size, replace=False))
+    # print('s:')
+    # print(s)
     batch_y0 = true_y[s]  # (M, D)
+    # print('batch_y0:', batch_y0.size())
+    # print(batch_y0)
     batch_t = t[:args.batch_time]  # (T)
+    # print('batch_t:', batch_t.size())
+    # print(batch_t)
     batch_y = torch.stack([true_y[s + i] for i in range(args.batch_time)], dim=0)  # (T, M, D)
+    # print('batch_y:', batch_y.size())
+    # print(batch_y)
     return batch_y0, batch_t, batch_y
 
 
@@ -175,5 +194,6 @@ if __name__ == '__main__':
                 print('Iter {:04d} | Total Loss {:.6f}'.format(itr, loss.item()))
                 visualize(true_y, pred_y, func, ii)
                 ii += 1
+            optimizer = adjust_learning_rate(optimizer)
 
         end = time.time()
