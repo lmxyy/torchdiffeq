@@ -2,6 +2,7 @@ import os
 import argparse
 import time
 import numpy as np
+import sys
 
 import torch
 import torch.nn as nn
@@ -52,8 +53,8 @@ def get_data():
         x_normal = torch.normal(n_data, 1)
 
         norm = torch.sqrt( torch.sum((x_normal * x_normal), 1, True) )
-        x0 = x_normal / 10 + x_normal / norm
-        x1 = x_normal / 10 + x_normal / (norm / 1.5)
+        x0 = x_normal / 10 + x_normal / norm + 5
+        x1 = x_normal / 10 + x_normal / (norm / 1.5) + 5
         y0 = torch.zeros(100)                   #类型0的标签
         y1 = torch.ones(100)                    #类型1的标签
 
@@ -69,11 +70,11 @@ class ODEFunc(nn.Module):
         super(ODEFunc, self).__init__()
         self.fc = nn.Sequential(
             nn.Linear(2, 10),
-            nn.ReLU(),
+            nn.Tanh(),
             nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
+            nn.Tanh(),
+            # nn.Linear(10, 10),
+            # nn.ReLU(),
             nn.Linear(10, 2),
             # nn.ReLU(),
         )
@@ -132,7 +133,9 @@ if __name__ == '__main__':
     # model = ODEBlock(odefunc=ODEFunc(2, 10, 2)).to(device)
     model = ODEBlock(odefunc=ODEFunc()).to(device)
     LR = 1e-3
-    optimizer = optim.RMSprop(model.parameters(), lr=LR)
+    # optimizer = optim.RMSprop(model.parameters(), lr=LR)
+    # optimizer = optim.SGD(model.parameters(), lr=LR)
+    optimizer = optim.Adam(model.parameters(), lr=LR)
     loss_func = nn.CrossEntropyLoss().to(device)
 
     for i in range(500):
@@ -146,6 +149,7 @@ if __name__ == '__main__':
         optimizer.zero_grad()
         result = model(x)    
         loss = loss_func(result, y)
+        print(loss.data.cpu(),file = sys.stderr)
         loss.backward()
         optimizer.step()
 
@@ -174,8 +178,8 @@ if __name__ == '__main__':
     num_row = 50
     num_column = 50
 
-    x0 = torch.linspace(-2.5, 2.5, num_row)
-    x1 = torch.linspace(-2.5, 2.5, num_column)
+    x0 = torch.linspace(-2.5, 2.5, num_row) + 5
+    x1 = torch.linspace(-2.5, 2.5, num_column) + 5
 
     x = torch.zeros(num_row * num_column, 2)
 
