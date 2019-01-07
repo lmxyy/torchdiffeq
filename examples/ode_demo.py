@@ -57,7 +57,7 @@ def get_batch():
     # print('s:')
     # print(s)
     batch_y0 = true_y[s]  # (M, D)
-    # print('batch_y0:', batch_y0.size())
+    print('batch_y0:', batch_y0.size())
     # print(batch_y0)
     batch_t = t[:args.batch_time]  # (T)
     # print('batch_t:', batch_t.size())

@@ -122,7 +122,7 @@ class RunningAverageMeter(object):
 
 
 if __name__ == '__main__':
-    USE_ADJ = False
+    USE_ADJ = True
     if USE_ADJ:
         from torchdiffeq import odeint_adjoint as odeint
     else:
