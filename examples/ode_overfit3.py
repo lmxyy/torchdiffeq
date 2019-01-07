@@ -8,8 +8,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-
-import matplotlib
 import matplotlib.pyplot as plt
 from torch.nn import init
 
@@ -26,8 +24,6 @@ parser.add_argument('--adjoint', action='store_true')
 parser.add_argument('--tol', type=float, default=1e-3)
 args = parser.parse_args()
 
-METHOD = 'adams'
-
 def adjust_learning_rate(optimizer, new_lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = new_lr
@@ -39,12 +35,14 @@ def initialize_weights(m):
 
 def get_data():
     
+    # 生成一系列的数据
     '''
     n_data = torch.ones(100, 2)
     x0 = torch.normal(2 * n_data, 1)
-    y0 = torch.zeros(100)                  
+    y0 = torch.zeros(100)                   #类型0的标签
     x1 = torch.normal(-2 * n_data, 1)
-    y1 = torch.ones(100)                    
+    y1 = torch.ones(100)                    #类型1的标签
+
     x = torch.cat((x0, x1), 0).type(torch.FloatTensor)
 
     # x = x / 1000
@@ -55,17 +53,18 @@ def get_data():
     # plt.show()
     return x, y
     '''
+def get_data():
+# 生成一系列的数据
     with torch.no_grad():
         n_data = torch.zeros(100, 2)
         x_normal = torch.normal(n_data, 1)
 
         norm = torch.sqrt( torch.sum((x_normal * x_normal), 1, True) )
-        x0 = x_normal / 10 + x_normal / norm + 5
-        x1 = x_normal / 10 + x_normal / (norm / 1.5) + 5
-        y0 = torch.zeros(100)                   
-        y1 = torch.ones(100)                    
+        x0 = x_normal / 10 + x_normal / norm
+        x1 = x_normal / 2 + x_normal / (norm / 1.5)
+        y0 = torch.zeros(100)                   #类型0的标签
+        y1 = torch.ones(100)                    #类型1的标签
 
-        # x = torch.cat((x0, x1), 0).type(torch.DoubleTensor)
         x = torch.cat((x0, x1), 0).type(torch.FloatTensor)
 
         # x = x / 1000
@@ -101,7 +100,7 @@ class ODEBlock(nn.Module):
     def forward(self, x):
         self.integration_time = self.integration_time.type_as(x)
         # print('first forward')
-        out = odeint(self.odefunc, x, self.integration_time, rtol=args.tol, atol=args.tol, method=METHOD)
+        out = odeint(self.odefunc, x, self.integration_time, rtol=args.tol, atol=args.tol, method='fixed_adams')
         # out = odeint(self.odefunc, x, self.integration_time, rtol=args.tol, atol=args.tol, method='dopri5')
         return out[1]
 
@@ -149,7 +148,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=LR)
     loss_func = nn.CrossEntropyLoss().to(device)
 
-    for i in range(5000):
+    for i in range(5001):
         # LR = LR * 0.999
         # adjust_learning_rate(optimizer, LR)
         model.train()
@@ -169,14 +168,34 @@ if __name__ == '__main__':
             LR = LR * 0.999
             adjust_learning_rate(optimizer, LR)
         
-        if (i % 200 == 0):
-            print('iter' + str(i))
+        if (i % 1000 == 0):
+            print('iter: ' + str(i))
+            
+            plt.subplot(1,2,1)
             prediction = torch.max(F.softmax(result, dim = 1), 1)[1]
             pred_y = prediction.cpu().data.numpy().squeeze()
-            accuracy = sum(pred_y == target_y) / 200 
             
-            print('Accuracy=%.2f' % accuracy)
+            plt.scatter(x.cpu().data.numpy()[:, 0], x.cpu().data.numpy()[:, 1], c = pred_y, s = 30, cmap = 'RdYlGn')
+            accuracy = sum(pred_y == target_y) / 200 # 统计预测的准确率
             
+            print('original_Accuracy=%.2f' % accuracy)
+            plt.text(1.5, -4, 'Accuracy=%.2f' % accuracy, fontdict={'size': 15, 'color':  'red'})
+            
+            
+            # try something interesting
+            plt.subplot(1,2,2)
+            with torch.no_grad():
+                 result = odeint(model.odefunc, x, torch.tensor([0, 1]).float(), rtol=args.tol, atol=args.tol, method='adams')[1]
+
+            prediction = torch.max(F.softmax(result, dim = 1), 1)[1]
+            pred_y = prediction.cpu().data.numpy().squeeze()
+            
+            plt.scatter(x.cpu().data.numpy()[:, 0], x.cpu().data.numpy()[:, 1], c = pred_y, s = 30, cmap = 'RdYlGn')
+            accuracy = sum(pred_y == target_y) / 200 # 统计预测的准确率
+            print('adams_Accuracy=%.2f' % accuracy)
+            
+            plt.text(1.5, -4, 'Accuracy=%.2f' % accuracy, fontdict={'size': 15, 'color':  'red'})
+            plt.show()
     # plt.ioff()
     # plt.show()
 
@@ -196,11 +215,19 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         x = x.to(device)
+
+        plt.subplot(1,2,1)
         result = model(x)
         prediction = torch.max(F.softmax(result, dim = 1), 1)[1]
         pred_y = prediction.cpu().data.numpy().squeeze()
         plt.scatter(x.cpu().data.numpy()[:, 0], x.cpu().data.numpy()[:, 1], c = pred_y, s = 30, cmap = 'RdYlGn')
         # plt.show()
-        plt.savefig(METHOD+'.png')
+
+        plt.subplot(1,2,2)
+        result = odeint(model.odefunc, x, torch.tensor([0, 1]).float(), rtol=args.tol, atol=args.tol, method='adams')[1]
+        prediction = torch.max(F.softmax(result, dim = 1), 1)[1]
+        pred_y = prediction.cpu().data.numpy().squeeze()
+        plt.scatter(x.cpu().data.numpy()[:, 0], x.cpu().data.numpy()[:, 1], c = pred_y, s = 30, cmap = 'RdYlGn')
+        plt.show()
 
 
