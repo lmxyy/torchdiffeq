@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #!/usr/bin/env python
 import torch
 from torch import nn
@@ -45,7 +44,6 @@ if __name__ == '__main__':
     print(model2.calc(y))
     print(model3.calc(y))
 
-=======
 import argparse
 import os
 
@@ -211,4 +209,3 @@ if __name__ == '__main__':
         pred_y = prediction.cpu().data.numpy().squeeze()
         plt.scatter(x.cpu().data.numpy()[:, 0], x.cpu().data.numpy()[:, 1], c=pred_y, s=30, cmap='RdYlGn')
         plt.savefig(METHOD + '.png')
->>>>>>> xzhbranch
