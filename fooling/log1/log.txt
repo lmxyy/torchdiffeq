@@ -1,0 +1,11 @@
+已经测试过的方法：
+1，FGSM:                         CNN 7误分类3, ode 7误分类1     两者效果均不佳
+2，CarliniWagnerL2Attack：       CNN 7误分类3, ode 7误分类2     ode效果不佳
+3，AdditiveGaussianNoiseAttack   CNN 7误分类3, ode 7误分类2     两者效果均不佳
+4，BIM                           CNN 7误分类3, ode 7误分类2     两者效果均不佳
+DeepFoolAttack : CNN 7 -> 3
+DeepFoolAttack : ODE 7 -> 2
+L1BasicIterativeAttack : CNN 7 -> 3
+L1BasicIterativeAttack : ODE 7 -> 2
+L2BasicIterativeAttack : CNN 7 -> 3
+L2BasicIterativeAttack : ODE 7 -> 2
