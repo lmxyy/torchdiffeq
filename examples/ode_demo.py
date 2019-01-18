@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
         if itr % args.test_freq == 0:
             with torch.no_grad():
-                pred_y = odeint(func, true_y0, t)
+                pred_y = odeint(func, true_y0, t,method='euler')
                 loss = torch.mean(torch.abs(pred_y - true_y))
                 print('Iter {:04d} | Total Loss {:.6f}'.format(itr, loss.item()))
                 visualize(true_y, pred_y, func, ii)
